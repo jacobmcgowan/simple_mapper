@@ -14,8 +14,8 @@ void main() {
     test('Add valid map', () {
       // Arrange - NOOP
       // Act
-      var mapper = Mapper()
-        .addMap<CompanyB, CompanyA>((source, mapper) => CompanyB());
+      final mapper = Mapper()
+          .addMap<CompanyB, CompanyA>((source, mapper, [params]) => CompanyB());
 
       // Assert
       expect(mapper.hasMap(CompanyB, CompanyA), isTrue);
@@ -23,16 +23,21 @@ void main() {
 
     test('Duplicate map error', () {
       // Arrange
-      var mapper = Mapper()
-        .addMap<CompanyB, CompanyA>((source, mapper) => CompanyB());
+      final mapper = Mapper()
+          .addMap<CompanyB, CompanyA>((source, mapper, [params]) => CompanyB());
 
       // Act - NOOP
       // Assert
       expect(
-        () => mapper.addMap<CompanyB, CompanyA>((source, mapper) => CompanyB()),
-        throwsA(predicate((e) => e is DuplicateMapError &&
-          e.destination == CompanyB &&
-          e.source == CompanyA))
+        () => mapper.addMap<CompanyB, CompanyA>(
+          (source, mapper, [params]) => CompanyB(),
+        ),
+        throwsA(
+          predicate((e) =>
+              e is DuplicateMapError &&
+              e.destination == CompanyB &&
+              e.source == CompanyA),
+        ),
       );
     });
   });
@@ -40,11 +45,11 @@ void main() {
   group('Test hasMap', () {
     test('Map exists', () {
       // Arrange
-      var mapper = Mapper()
-        .addMap<CompanyB, CompanyA>((source, mapper) => CompanyB());
+      final mapper = Mapper()
+          .addMap<CompanyB, CompanyA>((source, mapper, [params]) => CompanyB());
 
       // Act
-      var hasMap = mapper.hasMap(CompanyB, CompanyA);
+      final hasMap = mapper.hasMap(CompanyB, CompanyA);
 
       // Assert
       expect(hasMap, isTrue);
@@ -52,10 +57,10 @@ void main() {
 
     test('Map does not exist', () {
       // Arrange
-      var mapper = Mapper();
+      final mapper = Mapper();
 
       // Act
-      var hasMap = mapper.hasMap(CompanyB, CompanyA);
+      final hasMap = mapper.hasMap(CompanyB, CompanyA);
 
       // Assert
       expect(hasMap, isFalse);
@@ -67,34 +72,40 @@ void main() {
 
     setUp(() {
       mapper = Mapper()
-        .addMap<CompanyB, CompanyA>((source, mapper) => CompanyB(
-          id: source.id,
-          name: source.name,
-          employees: source.employees
-            ?.map((employee) => mapper.map<EmployeeB, EmployeeA>(employee))
-            ?.toList()
-        ))
-        .addMap<EmployeeB, EmployeeA>((source, mapper) => EmployeeB(
-          id: source.id,
-          name: source.name,
-          startDate: source.startDate,
-          timeEmployed: source.startDate == null || source.endDate == null ?
-            null :
-            source.endDate.difference(source.startDate),
-          company: mapper.map<CompanyB, CompanyA>(source.company)
-        ))
-        .addMap<EmployeeA, EmployeeB>((source, mapper) => throw Exception('Not today'));
+          .addMap<CompanyB, CompanyA>(
+            (source, mapper, [params]) => CompanyB(
+              id: source.id,
+              name: source.name,
+              employees: source.employees
+                  ?.map(
+                    (employee) => mapper.map<EmployeeB, EmployeeA>(employee),
+                  )
+                  ?.toList(),
+            ),
+          )
+          .addMap<EmployeeB, EmployeeA>(
+            (source, mapper, [params]) => EmployeeB(
+              id: source.id,
+              companyId: params != null ? params['companyId'] : null,
+              name: source.name,
+              startDate: source.startDate,
+              timeEmployed: source.startDate == null || source.endDate == null
+                  ? null
+                  : source.endDate.difference(source.startDate),
+              company: mapper.map<CompanyB, CompanyA>(source.company),
+            ),
+          )
+          .addMap<EmployeeA, EmployeeB>(
+            (source, mapper, [params]) => throw Exception('Not today'),
+          );
     });
 
     test('Simple map', () {
       // Arrange
-      var companyA = CompanyA(
-        id: 1,
-        name: 'ABC'
-      );
+      final companyA = CompanyA(id: 1, name: 'ABC');
 
       // Act
-      var companyB = mapper.map<CompanyB, CompanyA>(companyA);
+      final companyB = mapper.map<CompanyB, CompanyA>(companyA);
 
       // Assert
       expect(companyB, isNotNull);
@@ -104,19 +115,19 @@ void main() {
 
     test('Conditional map', () {
       // Arrange
-      var now = DateTime.now();
-      var duration = Duration(days: 30);
-      var employeeA = EmployeeA(
+      final now = DateTime.now();
+      final duration = Duration(days: 30);
+      final employeeA = EmployeeA(
         startDate: now.subtract(duration),
       );
-      var employeeC = EmployeeA(
+      final employeeC = EmployeeA(
         startDate: now.subtract(duration),
-        endDate: now
+        endDate: now,
       );
 
       // Act
-      var employeeB = mapper.map<EmployeeB, EmployeeA>(employeeA);
-      var employeeD = mapper.map<EmployeeB, EmployeeA>(employeeC);
+      final employeeB = mapper.map<EmployeeB, EmployeeA>(employeeA);
+      final employeeD = mapper.map<EmployeeB, EmployeeA>(employeeC);
 
       // Assert
       expect(employeeB, isNotNull);
@@ -127,15 +138,10 @@ void main() {
 
     test('Map child', () {
       // Arrange
-      var employeeA = EmployeeA(
-        company: CompanyA(
-          id: 1,
-          name: 'ABC'
-        )
-      );
+      final employeeA = EmployeeA(company: CompanyA(id: 1, name: 'ABC'));
 
       // Act
-      var employeeB = mapper.map<EmployeeB, EmployeeA>(employeeA);
+      final employeeB = mapper.map<EmployeeB, EmployeeA>(employeeA);
 
       // Assert
       expect(employeeB, isNotNull);
@@ -146,17 +152,12 @@ void main() {
 
     test('Map children', () {
       // Arrange
-      var companyA = CompanyA(
-        employees: <EmployeeA>[
-          EmployeeA(
-            id: 1,
-            name: 'John Smith'
-          )
-        ]
+      final companyA = CompanyA(
+        employees: <EmployeeA>[EmployeeA(id: 1, name: 'John Smith')],
       );
 
       // Act
-      var companyB = mapper.map<CompanyB, CompanyA>(companyA);
+      final companyB = mapper.map<CompanyB, CompanyA>(companyA);
 
       // Assert
       expect(companyB, isNotNull);
@@ -166,10 +167,26 @@ void main() {
       expect(companyB.employees[0].name, equals(companyA.employees[0].name));
     });
 
+    test('Map params', () {
+      // Arrange
+      final companyId = 2;
+      final employeeA = EmployeeA(id: 1);
+
+      // Act
+      final employeeB = mapper.map<EmployeeB, EmployeeA>(employeeA, {
+        'companyId': companyId,
+      });
+
+      // Assert
+      expect(employeeB, isNotNull);
+      expect(employeeB.id, equals(employeeA.id));
+      expect(employeeB.companyId, equals(companyId));
+    });
+
     test('Map null', () {
       // Arrange - NOOP
       // Act
-      var companyB = mapper.map<CompanyB, CompanyA>(null);
+      final companyB = mapper.map<CompanyB, CompanyA>(null);
 
       // Assert
       expect(companyB, isNull);
@@ -180,23 +197,21 @@ void main() {
       // Act - NOOP
       // Assert
       expect(
-        () => mapper.map<CompanyA, CompanyB>(null),
-        throwsA(predicate((e) => e is MapDoesNotExistError &&
-          e.destination == CompanyA &&
-          e.source == CompanyB))
-      );
+          () => mapper.map<CompanyA, CompanyB>(null),
+          throwsA(predicate((e) =>
+              e is MapDoesNotExistError &&
+              e.destination == CompanyA &&
+              e.source == CompanyB)));
     });
 
     test('Map exception', () {
       // Arrange
-      var employeeB = EmployeeB();
+      final employeeB = EmployeeB();
 
       // Act - NOOP
       // Assert
-      expect(
-        () => mapper.map<EmployeeA, EmployeeB>(employeeB),
-        throwsA(TypeMatcher<MapException>())
-      );
+      expect(() => mapper.map<EmployeeA, EmployeeB>(employeeB),
+          throwsA(TypeMatcher<MapException>()));
     });
   });
 }

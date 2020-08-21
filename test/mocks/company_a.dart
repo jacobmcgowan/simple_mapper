@@ -4,7 +4,7 @@ class CompanyA {
   CompanyA({
     this.id,
     this.name,
-    this.employees
+    this.employees,
   });
 
   int id;

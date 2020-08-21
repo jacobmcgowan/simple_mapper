@@ -3,18 +3,19 @@ import 'company_b.dart';
 class EmployeeB {
   EmployeeB({
     this.id,
+    this.companyId,
     this.name,
     this.startDate,
     this.timeEmployed,
-    this.company
   });
 
   int id;
+  int companyId;
   String name;
   DateTime startDate;
   Duration timeEmployed;
-  CompanyB company;
 
   @override
-  String toString() => '<EmployeeB>{ id: $id, name: $name, startDate: $startDate, timeEmployeed: $timeEmployed, company: $company }';
+  String toString() =>
+      '<EmployeeB>{ id: $id, companyId: $companyId, name: $name, startDate: $startDate, timeEmployeed: $timeEmployed }';
 }

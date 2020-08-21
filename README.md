@@ -12,12 +12,12 @@ object and calling mapper as arguments and returns the destination object.
 var mapper = Mapper()
   .addMap<CompanyB, CompanyA>((source, mapper) => CompanyB(
       id: source.id,
-      name: source.name
+      name: source.name,
     ));
   
 var companyA = CompanyA(
   id: 1,
-  name: 'ABC'
+  name: 'ABC',
 );
 
 var companyB = mapper.map<CompanyB, CompanyA>(companyA);
@@ -29,21 +29,21 @@ The mapper can be used in the callback to map children.
 
 ```dart
 var mapper = Mapper()
-  .addMap<CompanyB, CompanyA>((source, mapper) => CompanyB(
+  .addMap<CompanyB, CompanyA>((source, mapper, [params]) => CompanyB(
     id: source.id,
     name: source.name,
     employees: source.employees
       ?.map((employee) => mapper.map<EmployeeB, EmployeeA>(employee))
-      ?.toList()
+      ?.toList(),
   ))
-  .addMap<EmployeeB, EmployeeA>((source, mapper) => EmployeeB(
+  .addMap<EmployeeB, EmployeeA>((source, mapper, [params]) => EmployeeB(
     id: source.id,
     name: source.name,
     startDate: source.startDate,
     timeEmployed: source.startDate == null || source.endDate == null ?
       null :
       source.endDate.difference(source.startDate),
-    company: mapper.map<CompanyB, CompanyA>(source.company)
+    company: mapper.map<CompanyB, CompanyA>(source.company),
   ));
 ```
 
@@ -56,4 +56,31 @@ returned.
 ```dart
 var company = mapper.map<CompanyB, CompanyA>(null);
 print(company == null); // true
+```
+
+### Mapping additional parameters
+
+In some cases the source may not contain all of the data that you want to map
+to the destination. In these cases you can pass additional parameters.
+
+```dart
+var mapper = Mapper()
+  .addMap<CompanyB, CompanyA>((source, mapper, [params]) => CompanyB(
+    id: source.id,
+    name: source.name,
+    employees: source.employees
+      ?.map((employee) => mapper.map<EmployeeB, EmployeeA>(employee, {
+        'companyId': source.id,
+      }))
+      ?.toList(),
+  ))
+  .addMap<EmployeeB, EmployeeA>((source, mapper, [params]) => EmployeeB(
+    id: source.id,
+    companyId: params != null ? params['companyId'] : null,
+    name: source.name,
+    startDate: source.startDate,
+    timeEmployed: source.startDate == null || source.endDate == null ?
+      null :
+      source.endDate.difference(source.startDate),
+  ));
 ```
