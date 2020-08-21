@@ -4,7 +4,7 @@ class CompanyB {
   CompanyB({
     this.id,
     this.name,
-    this.employees
+    this.employees,
   });
 
   int id;
@@ -14,8 +14,10 @@ class CompanyB {
   @override
   String toString() {
     var employeesString = employees
-      ?.map((employee) => employee.toString())
-      ?.join(', ');
+        ?.map(
+          (employee) => employee.toString(),
+        )
+        ?.join(', ');
 
     if (employeesString != null) {
       employeesString = '[ $employeesString ]';

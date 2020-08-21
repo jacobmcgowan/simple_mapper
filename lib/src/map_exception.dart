@@ -7,7 +7,6 @@ class MapException implements Exception {
   final dynamic message;
 
   @override
-  String toString() => message == null ?
-    'MapException' :
-    'MapException: $message';
+  String toString() =>
+      message == null ? 'MapException' : 'MapException: $message';
 }

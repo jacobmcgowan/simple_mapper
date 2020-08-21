@@ -6,7 +6,7 @@ class EmployeeA {
     this.name,
     this.startDate,
     this.endDate,
-    this.company
+    this.company,
   });
 
   int id;
