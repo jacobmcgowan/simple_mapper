@@ -7,7 +7,7 @@ class CompanyA {
     this.employees,
   });
 
-  int id;
-  String name;
-  List<EmployeeA> employees;
+  int? id;
+  String? name;
+  List<EmployeeA>? employees;
 }

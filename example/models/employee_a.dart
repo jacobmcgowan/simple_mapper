@@ -1,5 +1,3 @@
-import 'company_a.dart';
-
 class EmployeeA {
   EmployeeA({
     this.id,
@@ -8,10 +6,10 @@ class EmployeeA {
     this.endDate,
   });
 
-  int id;
-  String name;
-  DateTime startDate;
-  DateTime endDate;
+  int? id;
+  String? name;
+  DateTime? startDate;
+  DateTime? endDate;
 
   @override
   String toString() =>

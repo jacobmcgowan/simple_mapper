@@ -9,9 +9,9 @@ class EmployeeA {
     this.company,
   });
 
-  int id;
-  String name;
-  DateTime startDate;
-  DateTime endDate;
-  CompanyA company;
+  int? id;
+  String? name;
+  DateTime? startDate;
+  DateTime? endDate;
+  CompanyA? company;
 }

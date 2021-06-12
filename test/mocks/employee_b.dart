@@ -10,10 +10,10 @@ class EmployeeB {
     this.company,
   });
 
-  int id;
-  int companyId;
-  String name;
-  DateTime startDate;
-  Duration timeEmployed;
-  CompanyB company;
+  int? id;
+  int? companyId;
+  String? name;
+  DateTime? startDate;
+  Duration? timeEmployed;
+  CompanyB? company;
 }

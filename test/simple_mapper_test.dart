@@ -9,6 +9,8 @@ import 'mocks/company_b.dart';
 import 'mocks/employee_a.dart';
 import 'mocks/employee_b.dart';
 
+bool isType<T>(Type type) => type == T;
+
 void main() {
   group('Test addMap', () {
     test('Add valid map', () {
@@ -33,7 +35,7 @@ void main() {
           (source, mapper, [params]) => CompanyB(),
         ),
         throwsA(
-          predicate((e) =>
+          predicate((dynamic e) =>
               e is DuplicateMapError &&
               e.destination == CompanyB &&
               e.source == CompanyA),
@@ -68,7 +70,7 @@ void main() {
   });
 
   group('Test map', () {
-    Mapper mapper;
+    late Mapper mapper;
 
     setUp(() {
       mapper = Mapper()
@@ -80,8 +82,18 @@ void main() {
                   ?.map(
                     (employee) => mapper.map<EmployeeB, EmployeeA>(employee),
                   )
-                  ?.toList(),
+                  .toList(),
             ),
+          )
+          .addMap<CompanyB?, CompanyA?>(
+            (source, mapper, [params]) => CompanyB(
+                id: source?.id,
+                name: source?.name,
+                employees: source?.employees
+                    ?.map(
+                      (employee) => mapper.map<EmployeeB, EmployeeA>(employee),
+                    )
+                    .toList()),
           )
           .addMap<EmployeeB, EmployeeA>(
             (source, mapper, [params]) => EmployeeB(
@@ -91,12 +103,12 @@ void main() {
               startDate: source.startDate,
               timeEmployed: source.startDate == null || source.endDate == null
                   ? null
-                  : source.endDate.difference(source.startDate),
-              company: mapper.map<CompanyB, CompanyA>(source.company),
+                  : source.endDate!.difference(source.startDate!),
+              company: mapper.map<CompanyB?, CompanyA?>(source.company),
             ),
           )
           .addMap<EmployeeA, EmployeeB>(
-            (source, mapper, [params]) => throw Exception('Not today'),
+            ((source, mapper, [params]) => throw Exception('Not today')),
           );
     });
 
@@ -146,8 +158,8 @@ void main() {
       // Assert
       expect(employeeB, isNotNull);
       expect(employeeB.company, isNotNull);
-      expect(employeeB.company.id, employeeA.company.id);
-      expect(employeeB.company.name, employeeA.company.name);
+      expect(employeeB.company!.id, employeeA.company!.id);
+      expect(employeeB.company!.name, employeeA.company!.name);
     });
 
     test('Map children', () {
@@ -162,9 +174,9 @@ void main() {
       // Assert
       expect(companyB, isNotNull);
       expect(companyB.employees, isNotNull);
-      expect(companyB.employees.length, equals(companyA.employees.length));
-      expect(companyB.employees[0].id, equals(companyA.employees[0].id));
-      expect(companyB.employees[0].name, equals(companyA.employees[0].name));
+      expect(companyB.employees!.length, equals(companyA.employees!.length));
+      expect(companyB.employees![0]!.id, equals(companyA.employees![0].id));
+      expect(companyB.employees![0]!.name, equals(companyA.employees![0].name));
     });
 
     test('Map params', () {
@@ -186,7 +198,7 @@ void main() {
     test('Map null', () {
       // Arrange - NOOP
       // Act
-      final companyB = mapper.map<CompanyB, CompanyA>(null);
+      final companyB = mapper.map<CompanyB?, CompanyA?>(null);
 
       // Assert
       expect(companyB, isNull);
@@ -197,11 +209,16 @@ void main() {
       // Act - NOOP
       // Assert
       expect(
-          () => mapper.map<CompanyA, CompanyB>(null),
-          throwsA(predicate((e) =>
-              e is MapDoesNotExistError &&
-              e.destination == CompanyA &&
-              e.source == CompanyB)));
+        () => mapper.map<CompanyA, CompanyB?>(null),
+        throwsA(
+          predicate(
+            (dynamic e) =>
+                e is MapDoesNotExistError &&
+                isType<CompanyA>(e.destination) &&
+                isType<CompanyB?>(e.source),
+          ),
+        ),
+      );
     });
 
     test('Map exception', () {

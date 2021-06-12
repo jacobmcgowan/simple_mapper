@@ -7,9 +7,9 @@ class CompanyA {
     this.employees,
   });
 
-  int id;
-  String name;
-  List<EmployeeA> employees;
+  int? id;
+  String? name;
+  List<EmployeeA>? employees;
 
   @override
   String toString() {
@@ -17,7 +17,7 @@ class CompanyA {
         ?.map(
           (employee) => employee.toString(),
         )
-        ?.join(', ');
+        .join(', ');
 
     if (employeesString != null) {
       employeesString = '[ $employeesString ]';

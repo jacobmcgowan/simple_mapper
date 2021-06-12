@@ -13,8 +13,8 @@ class Mapper {
   /// Checks if the mapper has a map for the [destination] and [source] types.
   bool hasMap(Type destination, Type source) =>
       _maps.containsKey(destination) &&
-      _maps[destination].containsKey(source) &&
-      _maps[destination][source] != null;
+      _maps[destination]!.containsKey(source) &&
+      _maps[destination]![source] != null;
 
   /// Adds an expression that defines how to map from a [TSource] to a
   /// [TDestination] type.
@@ -24,20 +24,20 @@ class Mapper {
       _maps[TDestination] = <Type, MapConfiguration>{};
     }
 
-    if (_maps[TDestination].containsKey(TSource)) {
+    if (_maps[TDestination]!.containsKey(TSource)) {
       throw DuplicateMapError(TDestination, TSource);
     }
 
-    _maps[TDestination][TSource] =
+    _maps[TDestination]![TSource] =
         MapConfiguration<TDestination, TSource>(expression);
 
     return this;
   }
 
   /// Maps the [source].
-  TDestination map<TDestination, TSource>(TSource source, [Map params]) {
+  TDestination map<TDestination, TSource>(TSource source, [Map? params]) {
     if (hasMap(TDestination, TSource)) {
-      return _maps[TDestination][TSource].map(source, this, params);
+      return _maps[TDestination]![TSource]!.map(source, this, params);
     }
 
     throw MapDoesNotExistError(TDestination, TSource);

@@ -20,7 +20,7 @@ void main() {
                   'companyId': source.id,
                 }),
               )
-              ?.toList(),
+              .toList(),
         ),
       )
       .addMap<EmployeeB, EmployeeA>(
@@ -28,12 +28,12 @@ void main() {
           id: source.id,
 
           // EmployeeA doesn't have companyId so we pass it through params.
-          companyId: params['companyId'] ?? 0,
+          companyId: params!['companyId'] ?? 0,
           name: source.name,
           startDate: source.startDate,
           timeEmployed: source.startDate == null || source.endDate == null
               ? null
-              : source.endDate.difference(source.startDate),
+              : source.endDate!.difference(source.startDate!),
         ),
       );
 

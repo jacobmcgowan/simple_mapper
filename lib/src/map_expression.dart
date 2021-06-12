@@ -9,5 +9,5 @@ import 'package:simple_mapper/simple_mapper.dart';
 typedef MapExpression<TDestination, TSource> = TDestination Function(
   TSource source,
   Mapper mapper, [
-  Map params,
+  Map? params,
 ]);
